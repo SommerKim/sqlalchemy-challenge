@@ -41,7 +41,8 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start> and /api/v1.0/<start>/<end>"
+        f"/api/v1.0/<start>"
+        f"/api/v1.0/<start>/<end>"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -89,24 +90,25 @@ def one_date(start):
     session = Session(engine)
 
     """Get query information"""
-    # Query
+    # Query min, max and average of temps from provided start date
     start_results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).all()
 
     session.close()
+
     return jsonify(start_results)
 
+@app.route("/api/v1.0/<start>/<end>")
+def two_dates(start, end):
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
 
+    """Get query information"""
+    # Query min, max and average of temps between start and end dates
+    start_results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
 
-
-
-
-
-
-
-
-
-
-
+    session.close()
+    
+    return jsonify(start_results)
 
 
 if __name__ == "__main__":
