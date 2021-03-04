@@ -76,14 +76,24 @@ def tobs():
     session = Session(engine)
 
     """Return dates and temperatures from most active station from the past year"""
-    # Query 
+    # Query data within parameters
     stations = session.query(Measurement.date, Measurement.tobs).filter(Measurement.date > '2016-08-23', Measurement.station == 'USC00519281').all()
 
     session.close()
 
-    # temp_data = list(np.ravel(temp_data))
     return jsonify(stations)
 
+@app.route("/api/v1.0/<start>")
+def one_date(start):
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Get query information"""
+    # Query
+    start_results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).all()
+
+    session.close()
+    return jsonify(start_results)
 
 
 
